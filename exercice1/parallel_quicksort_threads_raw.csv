@@ -1,0 +1,121 @@
+Thread_Level,N,Output
+1,10000000,"Thread value = 1 
+Sequential quicksort took: 1.470688 sec.
+Parallel quicksort took: 1.637856 sec.
+Built-in quicksort took: 4.050624 sec."
+1,10000000,"Thread value = 1 
+Sequential quicksort took: 1.420977 sec.
+Parallel quicksort took: 1.483066 sec.
+Built-in quicksort took: 4.177301 sec."
+1,10000000,"Thread value = 1 
+Sequential quicksort took: 1.486452 sec.
+Parallel quicksort took: 1.535989 sec.
+Built-in quicksort took: 4.163392 sec."
+1,10000000,"Thread value = 1 
+Sequential quicksort took: 1.457046 sec.
+Parallel quicksort took: 1.580551 sec.
+Built-in quicksort took: 4.172396 sec."
+1,10000000,"Thread value = 1 
+Sequential quicksort took: 1.592987 sec.
+Parallel quicksort took: 1.498176 sec.
+Built-in quicksort took: 4.148829 sec."
+2,10000000,"Thread value = 2 
+Sequential quicksort took: 1.427151 sec.
+Parallel quicksort took: 1.786101 sec.
+Built-in quicksort took: 4.188842 sec."
+2,10000000,"Thread value = 2 
+Sequential quicksort took: 1.495446 sec.
+Parallel quicksort took: 1.696602 sec.
+Built-in quicksort took: 4.204367 sec."
+2,10000000,"Thread value = 2 
+Sequential quicksort took: 1.545842 sec.
+Parallel quicksort took: 1.600987 sec.
+Built-in quicksort took: 4.129900 sec."
+2,10000000,"Thread value = 2 
+Sequential quicksort took: 1.568017 sec.
+Parallel quicksort took: 1.582353 sec.
+Built-in quicksort took: 4.185582 sec."
+2,10000000,"Thread value = 2 
+Sequential quicksort took: 1.502740 sec.
+Parallel quicksort took: 1.914272 sec.
+Built-in quicksort took: 4.133083 sec."
+4,10000000,"Thread value = 4 
+Sequential quicksort took: 1.465661 sec.
+Parallel quicksort took: 2.058494 sec.
+Built-in quicksort took: 4.155340 sec."
+4,10000000,"Thread value = 4 
+Sequential quicksort took: 1.514779 sec.
+Parallel quicksort took: 2.714911 sec.
+Built-in quicksort took: 3.961708 sec."
+4,10000000,"Thread value = 4 
+Sequential quicksort took: 1.512099 sec.
+Parallel quicksort took: 2.605109 sec.
+Built-in quicksort took: 4.239746 sec."
+4,10000000,"Thread value = 4 
+Sequential quicksort took: 1.483063 sec.
+Parallel quicksort took: 2.714717 sec.
+Built-in quicksort took: 4.120081 sec."
+4,10000000,"Thread value = 4 
+Sequential quicksort took: 1.494870 sec.
+Parallel quicksort took: 2.466013 sec.
+Built-in quicksort took: 4.171396 sec."
+6,10000000,"Thread value = 6 
+Sequential quicksort took: 1.423901 sec.
+Parallel quicksort took: 2.783801 sec.
+Built-in quicksort took: 4.134591 sec."
+6,10000000,"Thread value = 6 
+Sequential quicksort took: 1.483434 sec.
+Parallel quicksort took: 2.476808 sec.
+Built-in quicksort took: 4.170806 sec."
+6,10000000,"Thread value = 6 
+Sequential quicksort took: 1.467769 sec.
+Parallel quicksort took: 2.088990 sec.
+Built-in quicksort took: 4.184061 sec."
+6,10000000,"Thread value = 6 
+Sequential quicksort took: 1.486174 sec.
+Parallel quicksort took: 2.902965 sec.
+Built-in quicksort took: 4.246786 sec."
+6,10000000,"Thread value = 6 
+Sequential quicksort took: 1.472453 sec.
+Parallel quicksort took: 2.324248 sec.
+Built-in quicksort took: 4.207170 sec."
+8,10000000,"Thread value = 8 
+Sequential quicksort took: 1.546941 sec.
+Parallel quicksort took: 2.501545 sec.
+Built-in quicksort took: 4.185919 sec."
+8,10000000,"Thread value = 8 
+Sequential quicksort took: 1.449373 sec.
+Parallel quicksort took: 2.757233 sec.
+Built-in quicksort took: 4.251857 sec."
+8,10000000,"Thread value = 8 
+Sequential quicksort took: 1.525463 sec.
+Parallel quicksort took: 2.709127 sec.
+Built-in quicksort took: 4.164166 sec."
+8,10000000,"Thread value = 8 
+Sequential quicksort took: 1.499138 sec.
+Parallel quicksort took: 2.388435 sec.
+Built-in quicksort took: 4.192053 sec."
+8,10000000,"Thread value = 8 
+Sequential quicksort took: 1.456325 sec.
+Parallel quicksort took: 2.834093 sec.
+Built-in quicksort took: 4.036171 sec."
+10,10000000,"Thread value = 10 
+Sequential quicksort took: 1.502689 sec.
+Parallel quicksort took: 2.727955 sec.
+Built-in quicksort took: 4.137963 sec."
+10,10000000,"Thread value = 10 
+Sequential quicksort took: 1.467692 sec.
+Parallel quicksort took: 2.850632 sec.
+Built-in quicksort took: 4.227988 sec."
+10,10000000,"Thread value = 10 
+Sequential quicksort took: 1.492939 sec.
+Parallel quicksort took: 2.403535 sec.
+Built-in quicksort took: 4.167377 sec."
+10,10000000,"Thread value = 10 
+Sequential quicksort took: 1.470419 sec.
+Parallel quicksort took: 2.763683 sec.
+Built-in quicksort took: 4.197764 sec."
+10,10000000,"Thread value = 10 
+Sequential quicksort took: 1.510203 sec.
+Parallel quicksort took: 2.752406 sec.
+Built-in quicksort took: 4.102017 sec."
