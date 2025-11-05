@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Quicksort Performance by Thread Level</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#fdfdfd; }
+      svg { background:#fff; border:1px solid #ccc; }
+      .line { fill:none; stroke-width:2.5px; }
+      .axis text, .legend { font-size:13px; }
+    </style>
+  </head>
+  <body>
+    <h2>Parallel Quicksort Performance (N = 10,000,000)</h2>
+    <svg width="750" height="450"></svg>
+
+    <script>
+      const data = [
+        {thread:1,
+          seq:[1.482115,1.484668,1.443782,1.473053,1.502204],
+          par:[1.708461,1.543798,1.465403,1.694704,1.810723],
+          builtin:[4.168064,4.070552,4.234299,4.187745,4.095116]},
+        {thread:2,
+          seq:[1.476666,1.450196,1.586917,1.651977,1.490752],
+          par:[1.746797,1.555361,1.793060,1.787540,1.666051],
+          builtin:[4.161512,4.097274,4.213597,4.085706,4.129355]},
+        {thread:4,
+          seq:[1.471655,1.517251,1.480661,1.457142,1.557071],
+          par:[2.579583,2.288628,2.030248,1.870203,2.193758],
+          builtin:[4.189185,4.290059,4.154763,4.225099,4.226180]},
+        {thread:6,
+          seq:[1.597031,1.537847,1.457049,1.462540,1.460431],
+          par:[2.350934,2.314397,2.525091,2.933748,2.486605],
+          builtin:[4.160879,4.199795,4.229886,4.166208,4.172652]},
+        {thread:8,
+          seq:[1.457500,1.497923,1.476830,1.482378,1.466482],
+          par:[3.007248,2.564656,2.874035,2.741972,2.846901],
+          builtin:[4.210687,4.337032,4.230365,4.141920,4.153081]},
+        {thread:10,
+          seq:[1.457164,1.507974,1.499852,1.471518,1.521681],
+          par:[2.766321,2.866612,2.647396,2.917798,2.938455],
+          builtin:[4.152638,4.161813,4.226293,4.174037,4.100859]}
+      ];
+
+      data.forEach(d => {
+        d.mean_seq     = d3.mean(d.seq);
+        d.mean_par     = d3.mean(d.par);
+        d.mean_builtin = d3.mean(d.builtin);
+      });
+
+      const svg = d3.select("svg"),
+            margin = {top:40, right:120, bottom:50, left:70},
+            width  = +svg.attr("width")  - margin.left - margin.right,
+            height = +svg.attr("height") - margin.top  - margin.bottom;
+
+      const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const x = d3.scaleLinear()
+        .domain(d3.extent(data, d => d.thread))
+        .range([0, width]);
+
+      const y = d3.scaleLinear()
+        .domain([
+          Math.floor((d3.min(data, d => Math.min(d.mean_seq, d.mean_par, d.mean_builtin)) - 0.1) * 10) / 10,
+          Math.ceil((d3.max(data, d => Math.max(d.mean_seq, d.mean_par, d.mean_builtin)) + 0.1) * 10) / 10
+        ])
+        .nice()
+        .range([height, 0]);
+
+      const xAxis = d3.axisBottom(x).ticks(6).tickFormat(d3.format("d"));
+      const yAxis = d3.axisLeft(y);
+
+      g.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(xAxis)
+        .append("text")
+        .attr("x", width/2).attr("y", 40)
+        .attr("fill", "#000").attr("text-anchor", "middle")
+        .text("Thread Level");
+
+      g.append("g")
+        .call(yAxis)
+        .append("text")
+        .attr("x", -40).attr("y", -10)
+        .attr("fill", "#000").attr("text-anchor", "start")
+        .text("Average Time (s)");
+
+      const series = [
+        {name:"Sequential", key:"mean_seq",     color:"#1f77b4"},
+        {name:"Parallel",   key:"mean_par",     color:"#d62728"},
+        {name:"Built-in",   key:"mean_builtin", color:"#2ca02c"},
+      ];
+
+      series.forEach(s => {
+        const line = d3.line()
+          .x(d => x(d.thread))
+          .y(d => y(d[s.key]))
+          .curve(d3.curveMonotoneX);
+
+        g.append("path")
+          .datum(data)
+          .attr("class","line")
+          .attr("stroke", s.color)
+          .attr("d", line);
+
+        g.selectAll(`.dot-${s.key}`)
+          .data(data)
+          .enter().append("circle")
+          .attr("r", 4)
+          .attr("cx", d => x(d.thread))
+          .attr("cy", d => y(d[s.key]))
+          .attr("fill", s.color)
+          .append("title")
+          .text(d => `${s.name} @ ${d.thread} → ${d[s.key].toFixed(3)}s`);
+      });
+
+      const legend = svg.append("g")
+        .attr("transform",`translate(${width+margin.left+10},${margin.top})`);
+      series.forEach((s,i)=>{
+        const row = legend.append("g").attr("transform",`translate(0,${i*24})`);
+        row.append("rect").attr("width",15).attr("height",15).attr("fill",s.color);
+        row.append("text").attr("x",22).attr("y",12).text(s.name).attr("class","legend");
+      });
+    </script>
+  </body>
+</html>
