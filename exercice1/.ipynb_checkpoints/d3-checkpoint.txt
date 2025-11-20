@@ -18,35 +18,53 @@
     <script>
       const data = [
         {thread:1,
-          seq:[1.482115,1.484668,1.443782,1.473053,1.502204],
-          par:[1.708461,1.543798,1.465403,1.694704,1.810723],
-          builtin:[4.168064,4.070552,4.234299,4.187745,4.095116]},
+          seq:[1.480006,1.475302,1.432579,1.554525,1.526077],
+          par:[1.594118,1.639428,1.555409,1.545840,1.810680],
+          builtin:[4.011250,4.209875,4.172907,4.222029,4.209509]},
         {thread:2,
-          seq:[1.476666,1.450196,1.586917,1.651977,1.490752],
-          par:[1.746797,1.555361,1.793060,1.787540,1.666051],
-          builtin:[4.161512,4.097274,4.213597,4.085706,4.129355]},
+          seq:[1.443422,1.465704,1.485720,1.520298,1.625643],
+          par:[1.914484,1.717313,1.652752,1.956903,1.880272],
+          builtin:[4.159670,4.232600,4.192386,4.297431,4.067693]},
         {thread:4,
-          seq:[1.471655,1.517251,1.480661,1.457142,1.557071],
-          par:[2.579583,2.288628,2.030248,1.870203,2.193758],
-          builtin:[4.189185,4.290059,4.154763,4.225099,4.226180]},
+          seq:[1.476038,1.549526,1.500941,1.464139,1.513362],
+          par:[1.959410,1.760235,2.676482,2.239048,3.034238],
+          builtin:[4.190112,4.237341,4.097152,4.180829,4.191721]},
         {thread:6,
-          seq:[1.597031,1.537847,1.457049,1.462540,1.460431],
-          par:[2.350934,2.314397,2.525091,2.933748,2.486605],
-          builtin:[4.160879,4.199795,4.229886,4.166208,4.172652]},
+          seq:[1.472279,1.499852,1.491648,1.508922,1.545655],
+          par:[2.928383,2.448205,2.717708,2.516101,3.193579],
+          builtin:[4.160201,4.221973,4.178006,4.194851,4.105011]},
         {thread:8,
-          seq:[1.457500,1.497923,1.476830,1.482378,1.466482],
-          par:[3.007248,2.564656,2.874035,2.741972,2.846901],
-          builtin:[4.210687,4.337032,4.230365,4.141920,4.153081]},
+          seq:[1.459810,1.449213,1.476653,1.493027,1.522501],
+          par:[2.432556,2.725026,2.608430,3.051158,2.498702],
+          builtin:[4.073357,4.270371,4.067311,4.253510,4.186719]},
         {thread:10,
-          seq:[1.457164,1.507974,1.499852,1.471518,1.521681],
-          par:[2.766321,2.866612,2.647396,2.917798,2.938455],
-          builtin:[4.152638,4.161813,4.226293,4.174037,4.100859]}
+          seq:[1.428891,1.489531,1.438525,1.474566,1.488279],
+          par:[2.705970,2.330441,2.790520,2.892136,2.855006],
+          builtin:[4.233459,4.208804,4.101401,4.159136,4.182547]}
       ];
+
+      const runs  = data[0].seq.length;
+      const t95   = 2.776;
 
       data.forEach(d => {
         d.mean_seq     = d3.mean(d.seq);
         d.mean_par     = d3.mean(d.par);
         d.mean_builtin = d3.mean(d.builtin);
+
+        const sd_seq     = d3.deviation(d.seq);
+        const sd_par     = d3.deviation(d.par);
+        const sd_builtin = d3.deviation(d.builtin);
+
+        const ci_seq     = t95 * sd_seq     / Math.sqrt(runs);
+        const ci_par     = t95 * sd_par     / Math.sqrt(runs);
+        const ci_builtin = t95 * sd_builtin / Math.sqrt(runs);
+
+        d.seq_low     = d.mean_seq     - ci_seq;
+        d.seq_high    = d.mean_seq     + ci_seq;
+        d.par_low     = d.mean_par     - ci_par;
+        d.par_high    = d.mean_par     + ci_par;
+        d.builtin_low = d.mean_builtin - ci_builtin;
+        d.builtin_high= d.mean_builtin + ci_builtin;
       });
 
       const svg = d3.select("svg"),
@@ -87,15 +105,27 @@
         .text("Average Time (s)");
 
       const series = [
-        {name:"Sequential", key:"mean_seq",     color:"#1f77b4"},
-        {name:"Parallel",   key:"mean_par",     color:"#d62728"},
-        {name:"Built-in",   key:"mean_builtin", color:"#2ca02c"},
+        {name:"Sequential", meanKey:"mean_seq", lowKey:"seq_low",     highKey:"seq_high",     color:"#1f77b4"},
+        {name:"Parallel",   meanKey:"mean_par", lowKey:"par_low",     highKey:"par_high",     color:"#d62728"},
+        {name:"Built-in",   meanKey:"mean_builtin", lowKey:"builtin_low", highKey:"builtin_high", color:"#2ca02c"},
       ];
 
       series.forEach(s => {
+        const area = d3.area()
+          .x(d => x(d.thread))
+          .y0(d => y(d[s.lowKey]))
+          .y1(d => y(d[s.highKey]))
+          .curve(d3.curveMonotoneX);
+
+        g.append("path")
+          .datum(data)
+          .attr("fill", s.color)
+          .attr("opacity", 0.15)
+          .attr("d", area);
+
         const line = d3.line()
           .x(d => x(d.thread))
-          .y(d => y(d[s.key]))
+          .y(d => y(d[s.meanKey]))
           .curve(d3.curveMonotoneX);
 
         g.append("path")
@@ -104,22 +134,22 @@
           .attr("stroke", s.color)
           .attr("d", line);
 
-        g.selectAll(`.dot-${s.key}`)
+        g.selectAll(`.dot-${s.meanKey}`)
           .data(data)
           .enter().append("circle")
           .attr("r", 4)
           .attr("cx", d => x(d.thread))
-          .attr("cy", d => y(d[s.key]))
+          .attr("cy", d => y(d[s.meanKey]))
           .attr("fill", s.color)
           .append("title")
-          .text(d => `${s.name} @ ${d.thread} → ${d[s.key].toFixed(3)}s`);
+          .text(d => `${s.name} @ ${d.thread} → ${d[s.meanKey].toFixed(3)}s`);
       });
 
       const legend = svg.append("g")
         .attr("transform",`translate(${width+margin.left+10},${margin.top})`);
       series.forEach((s,i)=>{
         const row = legend.append("g").attr("transform",`translate(0,${i*24})`);
-        row.append("rect").attr("width",15).attr("height",15).attr("fill",s.color);
+        row.append("rect").attr("width",15).attr("height",15).attr("fill",s.color).attr("opacity",0.6);
         row.append("text").attr("x",22).attr("y",12).text(s.name).attr("class","legend");
       });
     </script>
