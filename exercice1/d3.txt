@@ -2,155 +2,240 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Quicksort Performance by Thread Level</title>
+    <title>Quicksort Performance by Thread Level (Mean ± 95% CI)</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <style>
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#fdfdfd; }
-      svg { background:#fff; border:1px solid #ccc; }
-      .line { fill:none; stroke-width:2.5px; }
-      .axis text, .legend { font-size:13px; }
-    </style>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <h2>Parallel Quicksort Performance (N = 10,000,000)</h2>
-    <svg width="750" height="450"></svg>
+    <div class="meta">
+      <h2 style="margin: 0 0 6px 0;">Parallel Quicksort Performance by Thread Level</h2>
+      <small>Each point shows the mean runtime over repeated runs for a given thread level. The shaded region + whiskers show the 95% confidence interval on the mean runtime.</small>
+    </div>
+
+    <svg width="900" height="520"></svg>
+    <div class="tooltip" id="tip"></div>
+
+    <div class="note">If this chart doesn’t load: run the HTML, CSS and CSV file with a local server so it can be fetched.</div>
 
     <script>
-      const data = [
-        {thread:1,
-          seq:[1.480006,1.475302,1.432579,1.554525,1.526077],
-          par:[1.594118,1.639428,1.555409,1.545840,1.810680],
-          builtin:[4.011250,4.209875,4.172907,4.222029,4.209509]},
-        {thread:2,
-          seq:[1.443422,1.465704,1.485720,1.520298,1.625643],
-          par:[1.914484,1.717313,1.652752,1.956903,1.880272],
-          builtin:[4.159670,4.232600,4.192386,4.297431,4.067693]},
-        {thread:4,
-          seq:[1.476038,1.549526,1.500941,1.464139,1.513362],
-          par:[1.959410,1.760235,2.676482,2.239048,3.034238],
-          builtin:[4.190112,4.237341,4.097152,4.180829,4.191721]},
-        {thread:6,
-          seq:[1.472279,1.499852,1.491648,1.508922,1.545655],
-          par:[2.928383,2.448205,2.717708,2.516101,3.193579],
-          builtin:[4.160201,4.221973,4.178006,4.194851,4.105011]},
-        {thread:8,
-          seq:[1.459810,1.449213,1.476653,1.493027,1.522501],
-          par:[2.432556,2.725026,2.608430,3.051158,2.498702],
-          builtin:[4.073357,4.270371,4.067311,4.253510,4.186719]},
-        {thread:10,
-          seq:[1.428891,1.489531,1.438525,1.474566,1.488279],
-          par:[2.705970,2.330441,2.790520,2.892136,2.855006],
-          builtin:[4.233459,4.208804,4.101401,4.159136,4.182547]}
-      ];
+      const CSV_PATH = "parallel_quicksort_threads_ci_min.csv";
 
-      const runs  = data[0].seq.length;
-      const t95   = 2.776;
+      const svg = d3.select("svg");
+      const tip = d3.select("#tip");
 
-      data.forEach(d => {
-        d.mean_seq     = d3.mean(d.seq);
-        d.mean_par     = d3.mean(d.par);
-        d.mean_builtin = d3.mean(d.builtin);
-
-        const sd_seq     = d3.deviation(d.seq);
-        const sd_par     = d3.deviation(d.par);
-        const sd_builtin = d3.deviation(d.builtin);
-
-        const ci_seq     = t95 * sd_seq     / Math.sqrt(runs);
-        const ci_par     = t95 * sd_par     / Math.sqrt(runs);
-        const ci_builtin = t95 * sd_builtin / Math.sqrt(runs);
-
-        d.seq_low     = d.mean_seq     - ci_seq;
-        d.seq_high    = d.mean_seq     + ci_seq;
-        d.par_low     = d.mean_par     - ci_par;
-        d.par_high    = d.mean_par     + ci_par;
-        d.builtin_low = d.mean_builtin - ci_builtin;
-        d.builtin_high= d.mean_builtin + ci_builtin;
-      });
-
-      const svg = d3.select("svg"),
-            margin = {top:40, right:120, bottom:50, left:70},
-            width  = +svg.attr("width")  - margin.left - margin.right,
-            height = +svg.attr("height") - margin.top  - margin.bottom;
+      const margin = {top: 70, right: 220, bottom: 60, left: 90};
+      const width  = +svg.attr("width") - margin.left - margin.right;
+      const height = +svg.attr("height") - margin.top - margin.bottom;
 
       const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-      const x = d3.scaleLinear()
-        .domain(d3.extent(data, d => d.thread))
-        .range([0, width]);
-
-      const y = d3.scaleLinear()
-        .domain([
-          Math.floor((d3.min(data, d => Math.min(d.mean_seq, d.mean_par, d.mean_builtin)) - 0.1) * 10) / 10,
-          Math.ceil((d3.max(data, d => Math.max(d.mean_seq, d.mean_par, d.mean_builtin)) + 0.1) * 10) / 10
-        ])
-        .nice()
-        .range([height, 0]);
-
-      const xAxis = d3.axisBottom(x).ticks(6).tickFormat(d3.format("d"));
-      const yAxis = d3.axisLeft(y);
-
-      g.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(xAxis)
-        .append("text")
-        .attr("x", width/2).attr("y", 40)
-        .attr("fill", "#000").attr("text-anchor", "middle")
-        .text("Thread Level");
-
-      g.append("g")
-        .call(yAxis)
-        .append("text")
-        .attr("x", -40).attr("y", -10)
-        .attr("fill", "#000").attr("text-anchor", "start")
-        .text("Average Time (s)");
-
       const series = [
-        {name:"Sequential", meanKey:"mean_seq", lowKey:"seq_low",     highKey:"seq_high",     color:"#1f77b4"},
-        {name:"Parallel",   meanKey:"mean_par", lowKey:"par_low",     highKey:"par_high",     color:"#d62728"},
-        {name:"Built-in",   meanKey:"mean_builtin", lowKey:"builtin_low", highKey:"builtin_high", color:"#2ca02c"},
+        {name:"Sequential", meanKey:"seq_mean", lowKey:"seq_ci_low", highKey:"seq_ci_high", color:"#1f77b4"},
+        {name:"Parallel", meanKey:"par_mean", lowKey:"par_ci_low", highKey:"par_ci_high", color:"#d62728"},
+        {name:"Built-in", meanKey:"builtin_mean", lowKey:"builtin_ci_low", highKey:"builtin_ci_high", color:"#2ca02c"},
       ];
 
-      series.forEach(s => {
-        const area = d3.area()
-          .x(d => x(d.thread))
-          .y0(d => y(d[s.lowKey]))
-          .y1(d => y(d[s.highKey]))
-          .curve(d3.curveMonotoneX);
+      function fmt3(x){ return (x == null || Number.isNaN(x)) ? "NA" : (+x).toFixed(3); }
 
-        g.append("path")
-          .datum(data)
-          .attr("fill", s.color)
-          .attr("opacity", 0.15)
-          .attr("d", area);
+      d3.csv(CSV_PATH, d => ({
+        thread: String(+d.Thread_Level),
+        N: +d.N,
 
-        const line = d3.line()
-          .x(d => x(d.thread))
-          .y(d => y(d[s.meanKey]))
-          .curve(d3.curveMonotoneX);
+        seq_mean: +d.seq_mean, seq_ci_low: +d.seq_ci_low, seq_ci_high: +d.seq_ci_high,
+        par_mean: +d.par_mean, par_ci_low: +d.par_ci_low, par_ci_high: +d.par_ci_high,
+        builtin_mean: +d.builtin_mean, builtin_ci_low: +d.builtin_ci_low, builtin_ci_high: +d.builtin_ci_high,
+      })).then(data => {
+        data.sort((a,b) => (+a.thread) - (+b.thread));
 
-        g.append("path")
-          .datum(data)
-          .attr("class","line")
-          .attr("stroke", s.color)
-          .attr("d", line);
+        const threads = data.map(d => d.thread);
+        const Nfixed = data.length ? data[0].N : null;
 
-        g.selectAll(`.dot-${s.meanKey}`)
-          .data(data)
-          .enter().append("circle")
-          .attr("r", 4)
-          .attr("cx", d => x(d.thread))
-          .attr("cy", d => y(d[s.meanKey]))
-          .attr("fill", s.color)
-          .append("title")
-          .text(d => `${s.name} @ ${d.thread} → ${d[s.meanKey].toFixed(3)}s`);
-      });
+        const x = d3.scaleBand()
+          .domain(threads)
+          .range([0, width])
+          .padding(0.25);
 
-      const legend = svg.append("g")
-        .attr("transform",`translate(${width+margin.left+10},${margin.top})`);
-      series.forEach((s,i)=>{
-        const row = legend.append("g").attr("transform",`translate(0,${i*24})`);
-        row.append("rect").attr("width",15).attr("height",15).attr("fill",s.color).attr("opacity",0.6);
-        row.append("text").attr("x",22).attr("y",12).text(s.name).attr("class","legend");
+        const yMin = d3.min(data, d => d3.min(series, s => d[s.lowKey]));
+        const yMax = d3.max(data, d => d3.max(series, s => d[s.highKey]));
+
+        const y = d3.scaleLinear()
+          .domain([Math.max(0, yMin - 0.15), yMax + 0.15])
+          .nice()
+          .range([height, 0]);
+
+        svg.append("text")
+          .attr("x", margin.left)
+          .attr("y", 28)
+          .attr("font-size", 14)
+          .attr("fill", "#111")
+          .text(`N = ${Nfixed?.toLocaleString?.() ?? "?"} (fixed), CI from Python (t-based, 95%)`);
+
+        g.append("g")
+          .attr("class", "grid")
+          .call(d3.axisLeft(y).ticks(8).tickSize(-width).tickFormat(""))
+          .selectAll("line");
+
+        g.append("g")
+          .attr("transform", `translate(0,${height})`)
+          .call(d3.axisBottom(x))
+          .call(g => g.selectAll("text").style("font-size","13px"));
+
+        g.append("g")
+          .call(d3.axisLeft(y).ticks(8));
+
+        svg.append("text")
+          .attr("x", margin.left + width/2)
+          .attr("y", margin.top + height + 48)
+          .attr("text-anchor", "middle")
+          .attr("fill", "#000")
+          .attr("font-size", 14)
+          .text("Thread level (compile-time THREAD_LEVEL)");
+
+        svg.append("text")
+          .attr("x", 18)
+          .attr("y", margin.top + height/2)
+          .attr("transform", `rotate(-90, 18, ${margin.top + height/2})`)
+          .attr("text-anchor", "middle")
+          .attr("fill", "#000")
+          .attr("font-size", 14)
+          .text("Runtime (seconds)");
+
+        const xMid = d => x(d.thread) + x.bandwidth()/2;
+
+        series.forEach(s => {
+          const area = d3.area()
+            .x(d => xMid(d))
+            .y0(d => y(d[s.lowKey]))
+            .y1(d => y(d[s.highKey]));
+
+          g.append("path")
+            .datum(data)
+            .attr("class", "ci-band")
+            .attr("fill", s.color)
+            .attr("opacity", 0.12)
+            .attr("d", area);
+
+          const line = d3.line()
+            .x(d => xMid(d))
+            .y(d => y(d[s.meanKey]));
+
+          g.append("path")
+            .datum(data)
+            .attr("class","line")
+            .attr("stroke", s.color)
+            .attr("d", line);
+
+          const cap = Math.max(6, x.bandwidth() * 0.22);
+
+          const eb = g.selectAll(`.eb-${s.meanKey}`)
+            .data(data)
+            .enter()
+            .append("g")
+            .attr("transform", d => `translate(${xMid(d)},0)`);
+
+          eb.append("line")
+            .attr("class","errorbar")
+            .attr("stroke", s.color)
+            .attr("x1", 0).attr("x2", 0)
+            .attr("y1", d => y(d[s.lowKey]))
+            .attr("y2", d => y(d[s.highKey]))
+            .attr("opacity", 0.9);
+
+          eb.append("line")
+            .attr("class","errorcap")
+            .attr("stroke", s.color)
+            .attr("x1", -cap/2).attr("x2", cap/2)
+            .attr("y1", d => y(d[s.lowKey]))
+            .attr("y2", d => y(d[s.lowKey]))
+            .attr("opacity", 0.9);
+
+          eb.append("line")
+            .attr("class","errorcap")
+            .attr("stroke", s.color)
+            .attr("x1", -cap/2).attr("x2", cap/2)
+            .attr("y1", d => y(d[s.highKey]))
+            .attr("y2", d => y(d[s.highKey]))
+            .attr("opacity", 0.9);
+
+          g.selectAll(`.dot-${s.meanKey}`)
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("r", 4.5)
+            .attr("cx", d => xMid(d))
+            .attr("cy", d => y(d[s.meanKey]))
+            .attr("fill", s.color)
+            .attr("stroke", "white")
+            .attr("stroke-width", 1.2)
+            .on("mousemove", (event, d) => {
+              const mean = d[s.meanKey];
+              const lo = d[s.lowKey];
+              const hi = d[s.highKey];
+              const halfWidth = (hi - lo) / 2;
+
+              tip
+                .style("opacity", 1)
+                .style("left", (event.clientX + 14) + "px")
+                .style("top", (event.clientY + 14) + "px")
+                .html(`
+                  <div class="t">${s.name} THREAD_LEVEL = ${d.thread}</div>
+                  <div><b>mean:</b> ${fmt3(mean)} s</div>
+                  <div><b>95% CI:</b> [${fmt3(lo)}, ${fmt3(hi)}] s</div>
+                  <div><b>CI half-width:</b> ±${fmt3(halfWidth)} s</div>
+                `);
+            })
+            .on("mouseleave", () => tip.style("opacity", 0));
+        });
+
+        const legend = svg.append("g")
+          .attr("transform", `translate(${margin.left + width + 20}, ${margin.top + 10})`);
+
+        legend.append("text")
+          .attr("x", 0).attr("y", 0)
+          .attr("fill", "#111")
+          .attr("font-size", 14)
+          .attr("font-weight", 700)
+          .text("Algorithm");
+
+        series.forEach((s,i)=>{
+          const row = legend.append("g").attr("transform", `translate(0, ${18 + i*26})`);
+          row.append("rect")
+            .attr("width", 14).attr("height", 14)
+            .attr("fill", s.color).attr("opacity", 0.65);
+          row.append("text")
+            .attr("x", 20).attr("y", 12)
+            .attr("class","legend")
+            .text(s.name);
+        });
+
+        const ctx = legend.append("g").attr("transform", `translate(0, ${18 + series.length*26 + 18})`);
+        ctx.append("text")
+          .attr("fill", "#222")
+          .attr("font-size", 13)
+          .attr("font-weight", 700)
+          .text("CI encoding");
+
+        ctx.append("text")
+          .attr("y", 18)
+          .attr("fill", "#333")
+          .attr("font-size", 12.5)
+          .text("- Shaded band = 95% CI");
+
+        ctx.append("text")
+          .attr("y", 36)
+          .attr("fill", "#333")
+          .attr("font-size", 12.5)
+          .text("- Whiskers = 95% CI");
+
+        ctx.append("text")
+          .attr("y", 54)
+          .attr("fill", "#333")
+          .attr("font-size", 12.5)
+          .text("- Dot/line = mean");
+
+      }).catch(err => {
+        console.error(err);
+        alert("CSV not loaded. Put parallel_quicksort_threads_ci_min.csv next to this HTML and use a local server (Live Server).");
       });
     </script>
   </body>
