@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Playfair Reproduction of Wheat vs Wages</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>Reproduction of Playfair’s chart (Wheat vs Wages)</h1>
+        <p>Bars represent wheat price, and the blue surface with a red curve represents wages. This first figure intentionally uses a single shared y-scale to show how Playfair initially did.</p>
+      </header>
+
+      <main class="card">
+        <svg id="chart" viewBox="0 0 1100 560" aria-label="Playfair reproduction chart"></svg>
+
+        <div class="legend" aria-hidden="true">
+          <div class="key">
+            <span class="swatch bar"></span>
+            Wheat price (bars)
+          </div>
+          <div class="key">
+            <span class="swatch area"></span>
+            Wages (blue surface)
+          </div>
+          <div class="key">
+            <span class="swatch line"></span>
+            Wages (red curve)
+          </div>
+        </div>
+
+        <div class="note">Note: Wages are missing after 1810 in the dataset, so the data of bars and curve ends at 1810.</div>
+      </main>
+
+      <div id="tooltip" class="tooltip" role="status" aria-live="polite"></div>
+
+      <h2 class="section-title">Figure 2</h2>
+      <svg id="chart2" viewBox="0 0 1100 560" aria-label="Figure 2 dual-axis chart"></svg>
+
+      <h2 class="section-title">Figure 3</h2>
+      <svg id="chart3" viewBox="0 0 1100 560" aria-label="Figure 3 purchasing power chart"></svg>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>
