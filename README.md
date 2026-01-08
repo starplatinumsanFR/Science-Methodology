@@ -1,3 +1,4 @@
 # Science-Methodology
-Continuous Project
+Continuous Project.
+
 All homeworks are labelled as their respective folders.
